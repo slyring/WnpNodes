@@ -1,0 +1,8 @@
+{
+	"BuildId": "25360045",
+	"Modules": 
+	{
+		"WnpNodes": "UnrealEditor-WnpNodes.dll",
+		"WnpNodesEditor": "UnrealEditor-WnpNodesEditor.dll"
+	}
+}
