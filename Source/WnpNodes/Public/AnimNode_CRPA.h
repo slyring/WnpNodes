@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "ControlRig.h"
 #include "Animation/InputScaleBias.h"
 #include "AnimNode_ControlRigBase.h"
-#include "ControlRig/Public/Tools/ControlRigPose.h"
+#include "Tools/ControlRigPose.h"
 #include "AnimNode_CRPA.generated.h"
 
 USTRUCT()
@@ -16,6 +15,7 @@ struct WNPNODES_API FAnimNode_CRPA : public FAnimNode_ControlRigBase
 
 	FAnimNode_CRPA();
 	~FAnimNode_CRPA();
+
 
 	virtual UControlRig* GetControlRig() const override { return ControlRig; }
 	virtual TSubclassOf<UControlRig> GetControlRigClass() const override { return ControlRigClass; }
@@ -36,7 +36,6 @@ struct WNPNODES_API FAnimNode_CRPA : public FAnimNode_ControlRigBase
 	virtual void PropagateInputProperties(const UObject* InSourceInstance) override;
 
 private:
-	
 	void HandleOnInitialized_AnyThread(URigVMHost*, const FName&);
 #if WITH_EDITOR
 	virtual void HandleObjectsReinstanced_Impl(UObject* InSourceObject, UObject* InTargetObject,
@@ -48,16 +47,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = ControlRig)
 	TSubclassOf<UControlRig> ControlRigClass;
 
+	UPROPERTY(transient)
+	TObjectPtr<UControlRig> ControlRig;
+
 	/** This will be used for comparision and add only required pins*/
 	UPROPERTY(EditAnywhere, Category = ControlRig)
 	UControlRigPoseAsset* NeutralPoseAsset;
 
 	UPROPERTY(EditAnywhere, Category = ControlRig)
 	UControlRigPoseAsset* PoseAsset;
-
-	UPROPERTY(transient)
-	TObjectPtr<UControlRig> ControlRig;
-
 
 	// alpha value handler
 	UPROPERTY(EditAnywhere, Category = Settings, meta = (PinShownByDefault))
@@ -101,12 +99,33 @@ private:
 
 	/*
 	 * Max LOD that this node is allowed to run
-	 * For example if you have LODThreadhold to be 2, it will run until LOD 2 (based on 0 index)
+	 * For example if you have LODThreshold to be 2, it will run until LOD 2 (based on 0 index)
 	 * when the component LOD becomes 3, it will stop update/evaluate
 	 * currently transition would be issue and that has to be re-visited
 	 */
 	UPROPERTY(EditAnywhere, Category = Performance, meta = (DisplayName = "LOD Threshold"))
 	int32 LODThreshold;
+
+private:
+	struct FControlRigCurveMapping
+	{
+		FControlRigCurveMapping() = default;
+
+		FControlRigCurveMapping(FName InSourceName, FName InTargetName)
+			: Name(InTargetName)
+			  , SourceName(InSourceName)
+		{
+		}
+
+		FName Name = NAME_None;
+		FName SourceName = NAME_None;
+	};
+
+	using FCurveMappings = UE::Anim::TNamedValueArray<FDefaultAllocator, FControlRigCurveMapping>;
+
+	// Bulk curves for I/O
+	FCurveMappings InputCurveMappings;
+	FCurveMappings OutputCurveMappings;
 
 protected:
 	virtual UClass* GetTargetClass() const override { return *ControlRigClass; }

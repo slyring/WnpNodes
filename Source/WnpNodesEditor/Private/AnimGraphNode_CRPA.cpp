@@ -8,7 +8,7 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "AnimationGraphSchema.h"
 #include "RigVMBlueprintGeneratedClass.h"
-#include "ControlRigDeveloper/Public/ControlRigBlueprint.h"
+#include "ControlRigBlueprint.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AnimGraphNode_CRPA)
 
